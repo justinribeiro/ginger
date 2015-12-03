@@ -1,19 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ginger</title>
 
   <style>
     html, body {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: black;
     }
+
+    #range {
+      float: left;
+      width: 35%;
+      height: 75px;
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    #morph {
+      float: right;
+    }
+
+    .panel {
+      position: absolute;
+      width: 100%;
+      height: 75px;
+      bottom: 0;
+      background: rgba(90, 90, 90, 1);
+    }
+
+    .range {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+
+    .range::-moz-focus-outer {
+      border: 0;
+    }
+
+    .range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 24px;
+      width: 24px;
+      border: 1px solid rgb(70, 70, 70);
+      border-radius: 0;
+      background: rgb(120, 120, 120);
+      margin-top: -4px;
+    }
+
+    .range::-moz-range-thumb {
+      height: 24px;
+      width: 24px;
+      border: 1px solid rgb(70, 70, 70);
+      border-radius: 0;
+      background: rgb(120, 120, 120);
+    }
+
+    .range::-ms-thumb {
+      height: 24px;
+      width: 24px;
+      border: 1px solid rgb(70, 70, 70);
+      border-radius: 0;
+      background: rgb(120, 120, 120);
+    }
+
+    .range::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 15px;
+      background: rgb(70, 70, 70);
+    }
+
+    .range::-moz-range-track {
+      width: 100%;
+      height: 15px;
+      background: rgb(70, 70, 70);
+    }
+
+    .range::-ms-track {
+      width: 100%;
+      height: 15px;
+      background: rgb(70, 70, 70);
+    }
+
+    .range:focus {
+      outline: none;
+    }
+
+    .range::-ms-track {
+      width: 100%;
+      cursor: pointer;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+
+    .select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 35%;
+      height: 35px;
+      margin: 20px 20px 20px 0;
+      outline: none;
+      background: rgb(70, 70, 70);
+      color: #fafafa;
+      border: 1px solid rgb(60, 60, 60);
+    }
+
+    .select::-moz-focus-outer {
+      border: 0;
+    }
   </style>
 </head>
 
 <body>
+  <div id="renderer"></div>
+
+  <div class="panel">
+    <input id="range" class="range" type="range" min="0" max="1" step="0.01" value="0">
+    <select id="morph" class="select">
+      <option value="eyes">Eyes</option>
+      <option value="expression">Expression</option>
+      <option value="jawrange">Jaw Height</option>
+      <option value="jawtwist">Jaw Twist</option>
+      <option value="lipcurl">Lip Curl</option>
+      <option value="lipsync">Lip Sync</option>
+      <option value="sex">Manliness</option>
+      <option value="width">Jaw Width</option>
+      <option value="tongue">Tongue</option>
+    </select>
+  </div>
+
   <script type="text/javascript" src="components/three.js/three.min.js"></script>
   <script type="text/javascript" src="js/ginger.js"></script>
 </body>
