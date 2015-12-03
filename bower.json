@@ -1,0 +1,20 @@
+{
+  "name": "ginger",
+  "version": "0.0.0",
+  "homepage": "https://github.com/StickmanVentures/ginger",
+  "authors": [
+    "Stickman Ventures"
+  ],
+  "description": "Morph target experiment by StickmanVentures.",
+  "license": "Proprietary",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "three.js": "~0.73.0"
+  }
+}
