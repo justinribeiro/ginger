@@ -10,8 +10,8 @@ var Ginger = function() {
   var leftEye = new THREE.Object3D();
   var rightEye = new THREE.Object3D();
 
-  var leftEyeOrigin;
-  var rightEyeOrigin;
+  var slider = document.getElementById('range');
+  var selected = 'eyes';
 
   // All textures that need to be loaded before the meshes.
   var textures = {
@@ -80,45 +80,54 @@ var Ginger = function() {
 
   var morphs = {
     eyes: {
-      value: -1,
+      value: 0,
       mesh: meshes.gingerhead,
-      targets: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-      thresholds: [-1, -0.6, -0.3, -0.1, 0, 0.3, 0.4, 0.5, 0.7],
+      targets: [0, 1, 7, 8],
+      thresholds: [-1, 0, 0, 0.1],
+
+      leftEyeOrigin: null,
+      rightEyeOrigin: null,
 
       behavior: function(value) {
         var sex = morphs.sex.value;
         var recede = EASING.linear(sex, 0, -0.125, 1);
 
-        if (leftEyeOrigin == undefined) {
-          leftEyeOrigin = leftEye.position;
+        if (this.leftEyeOrigin == null) {
+          this.leftEyeOrigin = leftEye.position.clone();
         }
-        if (rightEyeOrigin == undefined) {
-          rightEyeOrigin = rightEye.position;
+        if (this.rightEyeOrigin == null) {
+          this.rightEyeOrigin = rightEye.position.clone();
         }
 
-        leftEye.position.x = leftEyeOrigin.x + recede;
-        leftEye.position.z = leftEyeOrigin.z + recede;
-        rightEye.position.x = rightEyeOrigin.x - recede;
-        rightEye.position.z = rightEyeOrigin.z + recede;
+        leftEye.position.x = this.leftEyeOrigin.x + recede;
+        leftEye.position.z = this.leftEyeOrigin.z + recede;
+        rightEye.position.x = this.rightEyeOrigin.x - recede;
+        rightEye.position.z = this.rightEyeOrigin.z + recede;
       }
     },
     expression: {
-      value: 1,
+      value: 0,
       mesh: meshes.gingerhead,
       targets: [20, 9],
-      thresholds: [0, 0.5]
+      thresholds: [-1, 0]
     },
     jawrange: {
-      value: 0.6,
+      value: 0,
       mesh: meshes.gingerhead,
       targets: [10, 11],
-      thresholds: [0, 0.5]
+      thresholds: [0, 0]
     },
     jawtwist: {
-      value: -1,
+      value: 0,
       mesh: meshes.gingerhead,
       targets: [12, 13],
       thresholds: [-1, 0]
+    },
+    symmetry: {
+      value: 0,
+      mesh: meshes.gingerhead,
+      targets: [14],
+      thresholds: [0]
     },
     lipcurl: {
       value: 0,
@@ -127,16 +136,16 @@ var Ginger = function() {
       thresholds: [-1, 0]
     },
     lipsync: {
-      value: -1,
+      value: 0,
       mesh: meshes.gingerhead,
       targets: [17, 18, 19],
       thresholds: [-1, 0, 0.5]
     },
     sex: {
-      value: 0.5,
+      value: 0,
       mesh: meshes.gingerhead,
-      targets: [21, 22],
-      thresholds: [0, 0.75]
+      targets: [22],
+      thresholds: [0]
     },
     width: {
       value: 0,
@@ -154,7 +163,7 @@ var Ginger = function() {
       value: 0,
       mesh: meshes.gingerteethbot,
       targets: [3, 0],
-      thresholds: [0, 0.2],
+      thresholds: [0, 0],
 
       behavior: function(value) {
         var jawrange = morphs.jawrange.value;
@@ -165,7 +174,7 @@ var Ginger = function() {
       value: 0,
       mesh: meshes.gingerteethtop,
       targets: [3, 0],
-      thresholds: [0, 0.2],
+      thresholds: [0, 0],
 
       behavior: function(value) {
         var jawrange = morphs.jawrange.value;
@@ -195,6 +204,69 @@ var Ginger = function() {
       }
     }
   };
+
+  var controls = {
+    eyes: {
+      control: 'eyes',
+      min: -1,
+      max: 1,
+      morph: morphs.eyes
+    },
+    expression: {
+      control: 'expression',
+      min: -1,
+      max: 1,
+      morph: morphs.expression
+    },
+    jawrange: {
+      control: 'jawrange',
+      min: 0,
+      max: 1,
+      morph: morphs.jawrange
+    },
+    jawtwist: {
+      control: 'jawtwist',
+      min: -1,
+      max: 1,
+      morph: morphs.jawtwist
+    },
+    symmetry: {
+      control: 'symmetry',
+      min: 0,
+      max: 1,
+      morph: morphs.symmetry
+    },
+    lipcurl: {
+      control: 'lipcurl',
+      min: -1,
+      max: 1,
+      morph: morphs.lipcurl
+    },
+    lipsync: {
+      control: 'lipsync',
+      min: -1,
+      max: 1,
+      morph: morphs.lipsync
+    },
+    sex: {
+      control: 'sex',
+      min: 0,
+      max: 1,
+      morph: morphs.sex
+    },
+    width: {
+      control: 'width',
+      min: -1,
+      max: 1,
+      morph: morphs.width
+    },
+    tongue: {
+      control: 'tongue',
+      min: 0,
+      max: 1,
+      morph: morphs.tongue
+    }
+  }
 
   function morph() {
     // Another separate loop for morph behaviors. This is so the scale or morph
@@ -383,6 +455,60 @@ var Ginger = function() {
     ginger.rotation.z = 0;
   }
 
+  function onrangeslide(event) {
+    var progress = event.target.valueAsNumber;
+    var selectControl;
+    var found = false;
+
+    for (var control in controls) {
+      if (controls[control].control == selected) {
+        selectControl = controls[control];
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      return;
+    }
+
+    var min = selectControl.min;
+    var max = selectControl.max;
+    var value = (max - min) * progress + min;
+
+    selectControl.morph.value = value;
+    morph();
+  }
+
+  function onselect(event) {
+    var value = event.target.value;
+    select(value);
+  }
+
+  function select(value) {
+    var selectControl;
+    var found = false;
+
+    for (var control in controls) {
+      if (controls[control].control == value) {
+        selected = value;
+        selectControl = controls[control];
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      return;
+    }
+
+    var min = selectControl.min;
+    var max = selectControl.max;
+    var percent = (((selectControl.morph.value - min) * 100) / (max - min)) / 100;
+
+    slider.value = percent;
+  }
+
   function recalculateAspect() {
     aspect = window.innerWidth / window.innerHeight;
     camera.aspect = aspect;
@@ -428,6 +554,11 @@ var Ginger = function() {
       // Setup event so ginger's eyes track the mouse.
       document.onmousemove = onmousemove;
 
+      // Setup events for the slider and selector.
+      document.getElementById('range').onchange = onrangeslide;
+      document.getElementById('range').oninput = onrangeslide;
+      document.getElementById('morph').onchange = onselect;
+
       // Let there be light! The light is simply a directional light that
       // shines directly inter Ginger's face.
       var directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
@@ -445,6 +576,8 @@ var Ginger = function() {
 
       // Load ginger in the background.
       load();
+
+      select(selected);
 
       // Start the render loop.
       animate();
