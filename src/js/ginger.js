@@ -103,19 +103,19 @@ var Ginger = function() {
       }
     },
     expression: {
-      value: 0.2,
+      value: 1,
       mesh: meshes.gingerhead,
       targets: [20, 9],
       thresholds: [0, 0.5]
     },
     jawrange: {
-      value: 0.5,
+      value: 0.6,
       mesh: meshes.gingerhead,
       targets: [10, 11],
       thresholds: [0, 0.5]
     },
     jawtwist: {
-      value: 0,
+      value: -1,
       mesh: meshes.gingerhead,
       targets: [12, 13],
       thresholds: [-1, 0]
@@ -149,10 +149,65 @@ var Ginger = function() {
       mesh: meshes.gingertongue,
       targets: [0, 1, 2, 3, 4, 5, 6],
       thresholds: [0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8]
+    },
+    teethopenbot: {
+      value: 0,
+      mesh: meshes.gingerteethbot,
+      targets: [3, 0],
+      thresholds: [0, 0.2],
+
+      behavior: function(value) {
+        var jawrange = morphs.jawrange.value;
+        morphs.teethopenbot.value = jawrange;
+      }
+    },
+    teethopentop: {
+      value: 0,
+      mesh: meshes.gingerteethtop,
+      targets: [3, 0],
+      thresholds: [0, 0.2],
+
+      behavior: function(value) {
+        var jawrange = morphs.jawrange.value;
+        morphs.teethopentop.value = jawrange;
+      }
+    },
+    teethsidebot: {
+      value: 0,
+      mesh: meshes.gingerteethbot,
+      targets: [1, 2],
+      thresholds: [-1, 0],
+
+      behavior: function(value) {
+        var jawtwist = morphs.jawtwist.value;
+        morphs.teethsidebot.value = jawtwist;
+      }
+    },
+    teethsidetop: {
+      value: 0,
+      mesh: meshes.gingerteethtop,
+      targets: [1, 2],
+      thresholds: [-1, 0],
+
+      behavior: function(value) {
+        var jawtwist = morphs.jawtwist.value;
+        morphs.teethsidetop.value = jawtwist;
+      }
     }
   };
 
   function morph() {
+    // Another separate loop for morph behaviors. This is so the scale or morph
+    // of certain meshes can be adjusted to account for others.
+    for (var morph in morphs) {
+      var morphTarget = morphs[morph];
+
+      // Not all morphs need behaviors so do not assume.
+      if (morphTarget['behavior'] != undefined) {
+        morphTarget.behavior(morphTarget.value);
+      }
+    }
+
     // Apply morph values to the correct targets.
     for (var morph in morphs) {
       var morphTarget = morphs[morph];
@@ -180,17 +235,6 @@ var Ginger = function() {
         } else {
           morphTarget.mesh.mesh.morphTargetInfluences[index] = Math.abs(morphTarget.value);
         }
-      }
-    }
-
-    // Another separate loop for morph behaviors. This is so the scale or morph
-    // of certain meshes can be adjusted to account for others.
-    for (var morph in morphs) {
-      var morphTarget = morphs[morph];
-
-      // Not all morphs need behaviors so do not assume.
-      if (morphTarget['behavior'] != undefined) {
-        morphTarget.behavior(morphTarget.value);
       }
     }
   }
