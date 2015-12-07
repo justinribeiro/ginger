@@ -3,8 +3,15 @@ var Ginger = function() {
 
   var aspect;
 
-  // Object3D with all meshes as children.
-  var ginger;
+  var queue = [];
+
+  // Object3Ds with all meshes as children.
+  var ginger = new THREE.Object3D();
+  var leftEye = new THREE.Object3D();
+  var rightEye = new THREE.Object3D();
+
+  var leftEyeOrigin;
+  var rightEyeOrigin;
 
   // All textures that need to be loaded before the meshes.
   var textures = {
@@ -39,12 +46,16 @@ var Ginger = function() {
       path: 'model/gingerlefteye.json',
       texture: textures.gingercolor,
       morphTargets: false,
+      parent: leftEye,
+      position: new THREE.Vector3(-0.96, -6.169, -1.305),
       mesh: null
     },
     gingerrighteye: {
       path: 'model/gingerrighteye.json',
       texture: textures.gingercolor,
       morphTargets: false,
+      parent: rightEye,
+      position: new THREE.Vector3(0.96, -6.169, -1.305),
       mesh: null
     },
     gingerteethbot: {
@@ -78,10 +89,17 @@ var Ginger = function() {
         var sex = morphs.sex.value;
         var recede = EASING.linear(sex, 0, -0.125, 1);
 
-        meshes.gingerlefteye.mesh.position.x = recede;
-        meshes.gingerlefteye.mesh.position.z = recede;
-        meshes.gingerrighteye.mesh.position.x = -recede;
-        meshes.gingerrighteye.mesh.position.z = recede;
+        if (leftEyeOrigin == undefined) {
+          leftEyeOrigin = leftEye.position;
+        }
+        if (rightEyeOrigin == undefined) {
+          rightEyeOrigin = rightEye.position;
+        }
+
+        leftEye.position.x = leftEyeOrigin.x + recede;
+        leftEye.position.z = leftEyeOrigin.z + recede;
+        rightEye.position.x = rightEyeOrigin.x - recede;
+        rightEye.position.z = rightEyeOrigin.z + recede;
       }
     },
     expression: {
@@ -225,7 +243,21 @@ var Ginger = function() {
     // Adds all meshes loaded into the scene.
     var addMeshes = function() {
       for (var mesh in meshes) {
-        ginger.add(meshes[mesh].mesh);
+        if (meshes[mesh].position != null) {
+          // Apply the transformations next frame so the initial addition does
+          // not overwrite anything we write to the matrix.
+          queueNextFrame(function(args) {
+            args.mesh.mesh.position.copy(args.mesh.position);
+          }, {
+            mesh: meshes[mesh]
+          });
+        }
+
+        if (meshes[mesh].parent != null) {
+          meshes[mesh].parent.add(meshes[mesh].mesh);
+        } else {
+          ginger.add(meshes[mesh].mesh);
+        }
       }
     };
 
@@ -267,9 +299,44 @@ var Ginger = function() {
     }
   }
 
+  function queueNextFrame(callback, args) {
+    queue.push({
+      callback: callback,
+      args: args
+    });
+  }
+
   function onresize(event) {
     recalculateAspect();
     renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  function onmousemove(event) {
+    var mouse = new THREE.Vector3(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        - (event.clientY / window.innerHeight) * 2 + 1,
+        0.5
+    );
+
+    mouse.unproject(camera);
+
+    // When getting the direction, flip the x and y axis or the eyes will
+    // look the wrong direction.
+    var direction = mouse.sub(camera.position).normalize();
+    direction.x *= -1;
+    direction.y *= -1;
+
+    var distance = camera.position.z / direction.z;
+    var position = camera.position.clone().add(direction.multiplyScalar(distance));
+
+    leftEye.lookAt(position);
+    rightEye.lookAt(position);
+
+    // Move the head less than the eyes.
+    ginger.lookAt(position);
+    ginger.rotation.x /= 5;
+    ginger.rotation.y /= 5;
+    ginger.rotation.z = 0;
   }
 
   function recalculateAspect() {
@@ -280,6 +347,13 @@ var Ginger = function() {
 
   function animate() {
     requestAnimationFrame(animate);
+
+    var i = queue.length;
+    while(i--) {
+      queue[i].callback(queue[i].args);
+      queue.splice(i, 1);
+    }
+
     renderer.render(scene, camera);
   }
 
@@ -307,6 +381,9 @@ var Ginger = function() {
       // Allow viewport resizing whenever the window resizes.
       window.onresize = onresize;
 
+      // Setup event so ginger's eyes track the mouse.
+      document.onmousemove = onmousemove;
+
       // Let there be light! The light is simply a directional light that
       // shines directly inter Ginger's face.
       var directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
@@ -314,8 +391,13 @@ var Ginger = function() {
       scene.add(directionalLight);
 
       // Ginger is the container for all the meshes.
-      ginger = new THREE.Object3D();
       scene.add(ginger);
+
+      leftEye.position.set(0.96, 6.169, 1.305);
+      ginger.add(leftEye);
+
+      rightEye.position.set(-0.96, 6.169, 1.305);
+      ginger.add(rightEye);
 
       // Load ginger in the background.
       load();
