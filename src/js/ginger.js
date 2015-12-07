@@ -88,6 +88,8 @@ var Ginger = function() {
       leftEyeOrigin: null,
       rightEyeOrigin: null,
 
+      // Move the eyes based on the sex of ginger. Man eyes are smaller and
+      // are moved backed to fit the appearance.
       behavior: function(value) {
         var sex = morphs.sex.value;
         var recede = EASING.linear(sex, 0, -0.125, 1);
@@ -115,13 +117,23 @@ var Ginger = function() {
       value: 0,
       mesh: meshes.gingerhead,
       targets: [10, 11],
-      thresholds: [0, 0]
+      thresholds: [0, 0],
+
+      // Move the tongue down when moving the jaw.
+      behavior: function(value) {
+        morphs.tonguedown.value = value;
+      }
     },
     jawtwist: {
       value: 0,
       mesh: meshes.gingerhead,
       targets: [12, 13],
-      thresholds: [-1, 0]
+      thresholds: [-1, 0],
+
+      // Move the tongue down when moving the jaw.
+      behavior: function(value) {
+        morphs.tonguetwist.value = value;
+      }
     },
     symmetry: {
       value: 0,
@@ -156,8 +168,20 @@ var Ginger = function() {
     tongue: {
       value: 0,
       mesh: meshes.gingertongue,
-      targets: [0, 1, 2, 3, 4, 5, 6],
-      thresholds: [0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8]
+      targets: [4],
+      thresholds: [0]
+    },
+    tonguedown: {
+      value: 0,
+      mesh: meshes.gingertongue,
+      targets: [1],
+      thresholds: [0]
+    },
+    tonguetwist: {
+      value: 0,
+      mesh: meshes.gingertongue,
+      targets: [2, 3],
+      thresholds: [-1, 0]
     },
     teethopenbot: {
       value: 0,
@@ -577,6 +601,7 @@ var Ginger = function() {
       // Load ginger in the background.
       load();
 
+      // Set the initial state of the range slider.
       select(selected);
 
       // Start the render loop.
