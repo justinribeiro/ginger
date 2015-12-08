@@ -10,6 +10,8 @@ var Ginger = function() {
   var leftEye = new THREE.Object3D();
   var rightEye = new THREE.Object3D();
 
+  var loaded = false;
+
   var slider = document.getElementById('range');
   var selected = 'eyes';
 
@@ -106,6 +108,12 @@ var Ginger = function() {
         rightEye.position.x = this.rightEyeOrigin.x - recede;
         rightEye.position.z = this.rightEyeOrigin.z + recede;
       }
+    },
+    eyelookside: {
+      value: 0,
+      mesh: meshes.gingerhead,
+      targets: [2, 3],
+      thresholds: [-1, 0]
     },
     expression: {
       value: 0,
@@ -338,6 +346,7 @@ var Ginger = function() {
   function load() {
     loadTextures(function() {
       loadMeshes(function() {
+        loaded = true;
         morph();
       });
     });
@@ -477,6 +486,13 @@ var Ginger = function() {
     ginger.rotation.x /= 5;
     ginger.rotation.y /= 5;
     ginger.rotation.z = 0;
+
+    var xProgress = (event.clientX / window.innerWidth) * 2 - 1;
+    morphs.eyelookside.value = xProgress;
+
+    if (loaded) {
+      morph();
+    }
   }
 
   function onrangeslide(event) {
