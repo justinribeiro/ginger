@@ -512,11 +512,20 @@ var Ginger = function() {
 
   function onrangeslide(event) {
     var progress = event.target.valueAsNumber;
+    updateMorph(progress);
+    morph();
+  }
+
+  function updateMorph(progress, morph) {
     var selectControl;
     var found = false;
 
+    if (morph == null) {
+      morph = selected;
+    }
+
     for (var control in controls) {
-      if (controls[control].control == selected) {
+      if (controls[control].control == morph) {
         selectControl = controls[control];
         found = true;
         break;
@@ -532,7 +541,6 @@ var Ginger = function() {
     var value = (max - min) * progress + min;
 
     selectControl.morph.value = value;
-    morph();
   }
 
   function onselect(event) {
@@ -541,7 +549,16 @@ var Ginger = function() {
   }
 
   function onsharepress(event) {
+    var modal = document.getElementById('share-modal');
+    modal.classList.remove('hidden');
 
+    var shareLink = document.getElementById('share-link');
+    shareLink.href = generateShareLink();
+  }
+
+  function onsharedismiss(event) {
+    var modal = document.getElementById('share-modal');
+    modal.classList.add('hidden');
   }
 
   function onscreenshotpress(event) {
@@ -611,6 +628,56 @@ var Ginger = function() {
     slider.value = percent;
   }
 
+  function generateShareLink() {
+    var url = [location.protocol, '//', location.host, location.pathname].join('');
+    var index = 0;
+
+    // Add get params to the url.
+    for (var control in controls) {
+      var selectControl = controls[control];
+
+      if (index == 0) {
+        url += '?';
+      } else {
+        url += '&';
+      }
+
+      index++;
+
+      var min = selectControl.min;
+      var max = selectControl.max;
+      var percent = (((selectControl.morph.value - min) * 100) / (max - min)) / 100;
+      url += selectControl.control + '=' + percent;
+    }
+
+    return url;
+  }
+
+  function parseShareLink() {
+    // Remove the "?" from the beginning of querystring whilst assigning.
+    var querystring = window.location.search.substring(1);
+
+    // Pairs are separated by ampersands.
+    var pairs = querystring.split('&');
+
+    // Map of GET params to be returned.
+    var map = {};
+
+    for (var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split('=');
+
+      if (pair.length != 2) {
+        continue;
+      }
+
+      var name = decodeURIComponent(pair[0]);
+      var value = decodeURIComponent(pair[1]);
+      map[name] = value;
+    }
+
+    return map;
+  }
+
   function recalculateAspect() {
     aspect = window.innerWidth / window.innerHeight;
     camera.aspect = aspect;
@@ -662,8 +729,19 @@ var Ginger = function() {
       document.getElementById('range').oninput = onrangeslide;
       document.getElementById('morph').onchange = onselect;
       document.getElementById('share').onclick = onsharepress;
+      document.querySelector('#share-modal .full-shadow').onclick = onsharedismiss;
       document.getElementById('screenshot').onclick = onscreenshotpress;
       document.querySelector('#screenshot-modal .full-shadow').onclick = onscreenshotdismiss;
+
+      var sharedParams = parseShareLink();
+
+      for (var control in controls) {
+        var selectedControl = controls[control];
+
+        if (sharedParams[selectedControl.control] != undefined) {
+          updateMorph(sharedParams[selectedControl.control], selectedControl.control);
+        }
+      }
 
       // Let there be light! The light is simply a directional light that
       // shines directly inter Ginger's face.

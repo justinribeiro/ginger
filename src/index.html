@@ -95,6 +95,29 @@
       margin-top: 0;
     }
 
+    .modal-sm {
+      position: absolute;
+      z-index: 100;
+      width: 200px;
+      height: 100px;
+      padding: 15px;
+      top: calc(50% - 65px);
+      left: calc(50% - 115px);
+      border-radius: 5px;
+      background: rgb(100, 100, 100);
+      color: #fafafa;
+    }
+
+    .modal-sm h1, .modal-sm h2, .modal-sm h3, .modal-sm h4 {
+      margin-top: 0;
+    }
+
+    .modal-sm a {
+      text-decoration: none;
+      text-align: center;
+      color: lightblue;
+    }
+
     .clearfix {
       clear: both;
     }
@@ -230,6 +253,15 @@
     <div class="modal">
       <h1>Screenshot</h1>
       <img id="screenshot-image">
+    </div>
+  </div>
+
+  <div id="share-modal" class="hidden">
+    <div class="full-shadow"></div>
+
+    <div class="modal-sm">
+      <h1>Share Link</h1>
+      <a id="share-link">Copy to share</a>
     </div>
   </div>
 
