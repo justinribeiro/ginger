@@ -10,7 +10,11 @@ var Ginger = function() {
   var leftEye = new THREE.Object3D();
   var rightEye = new THREE.Object3D();
 
+  // True when all the meshes are loaded.
   var loaded = false;
+
+  // Prevent duplicate screenshot countdowns.
+  var countingDown = false;
 
   var slider = document.getElementById('range');
   var selected = 'eyes';
@@ -19,6 +23,10 @@ var Ginger = function() {
   var textures = {
     gingercolor: {
       path: 'model/ginger_color.jpg',
+      texture: null,
+    },
+    gingercolornormal: {
+      path: 'model/ginger_norm.jpg',
       texture: null,
     }
   };
@@ -29,24 +37,28 @@ var Ginger = function() {
     gingerhead: {
       path: 'model/gingerhead.json',
       texture: textures.gingercolor,
+      normalmap: textures.gingercolornormal,
       morphTargets: true,
       mesh: null
     },
     gingerheadband: {
       path: 'model/gingerheadband.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: false,
       mesh: null
     },
     gingerheadphones: {
       path: 'model/gingerheadphones.json',
       texture: null,
+      normalmap: null,
       morphTargets: false,
       mesh: null
     },
     gingerlefteye: {
       path: 'model/gingerlefteye.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: false,
       parent: leftEye,
       position: new THREE.Vector3(-0.96, -6.169, -1.305),
@@ -55,6 +67,7 @@ var Ginger = function() {
     gingerrighteye: {
       path: 'model/gingerrighteye.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: false,
       parent: rightEye,
       position: new THREE.Vector3(0.96, -6.169, -1.305),
@@ -63,18 +76,21 @@ var Ginger = function() {
     gingerteethbot: {
       path: 'model/gingerteethbot.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: true,
       mesh: null
     },
     gingerteethtop: {
       path: 'model/gingerteethtop.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: true,
       mesh: null
     },
     gingertongue: {
       path: 'model/gingertongue.json',
       texture: textures.gingercolor,
+      normalmap: null,
       morphTargets: true,
       mesh: null
     }
@@ -413,14 +429,20 @@ var Ginger = function() {
     // Loads the meshes asynchronously.
     var load = function(path, mesh) {
       jsonLoader.load(path, function(geometry) {
-        var texture;
+        var texture, normalmap;
 
         if (meshes[mesh].texture != null) {
           texture = meshes[mesh].texture.texture;
         }
+        if (meshes[mesh].normalmap != null) {
+          normalmap = meshes[mesh].normalmap.texture
+        }
 
         var material = new THREE.MeshLambertMaterial({
           map: texture,
+          normalmap: normalmap,
+          vertexColors: THREE.FaceColors,
+          shading: THREE.SmoothShading,
           morphTargets: meshes[mesh].morphTargets
         });
 
@@ -486,13 +508,6 @@ var Ginger = function() {
     ginger.rotation.x /= 5;
     ginger.rotation.y /= 5;
     ginger.rotation.z = 0;
-
-    var xProgress = (event.clientX / window.innerWidth) * 2 - 1;
-    morphs.eyelookside.value = xProgress;
-
-    if (loaded) {
-      morph();
-    }
   }
 
   function onrangeslide(event) {
@@ -523,6 +538,53 @@ var Ginger = function() {
   function onselect(event) {
     var value = event.target.value;
     select(value);
+  }
+
+  function onsharepress(event) {
+
+  }
+
+  function onscreenshotpress(event) {
+    var counter = document.getElementById('counter');
+    counter.classList.remove('hidden');
+
+    var countdown = 5;
+
+    // Recursive countdown until the countdown is less than 0.
+    var count = function() {
+      countdown--;
+      counter.innerHTML = countdown + 1;
+
+      if (countdown < 0) {
+        screenshot();
+        counter.classList.add('hidden');
+        countingDown = false;
+
+        return;
+      }
+
+      countingDown = true;
+
+      // The countdown is not done so schedule another one.
+      window.setTimeout(count, 1000);
+    };
+
+    if (!countingDown) {
+      count();
+    }
+  }
+
+  function onscreenshotdismiss(event) {
+    var modal = document.getElementById('screenshot-modal');
+    modal.classList.add('hidden');
+  }
+
+  function screenshot() {
+    var modal = document.getElementById('screenshot-modal');
+    modal.classList.remove('hidden');
+
+    var image = document.getElementById('screenshot-image');
+    image.src = renderer.domElement.toDataURL('image/jpeg', 0.8);
   }
 
   function select(value) {
@@ -580,7 +642,8 @@ var Ginger = function() {
 
       // Create a renderer the size of the entire window.
       renderer = new THREE.WebGLRenderer({
-        antialias: true
+        antialias: true,
+        preserveDrawingBuffer: true
       });
       renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -598,6 +661,9 @@ var Ginger = function() {
       document.getElementById('range').onchange = onrangeslide;
       document.getElementById('range').oninput = onrangeslide;
       document.getElementById('morph').onchange = onselect;
+      document.getElementById('share').onclick = onsharepress;
+      document.getElementById('screenshot').onclick = onscreenshotpress;
+      document.querySelector('#screenshot-modal .full-shadow').onclick = onscreenshotdismiss;
 
       // Let there be light! The light is simply a directional light that
       // shines directly inter Ginger's face.
