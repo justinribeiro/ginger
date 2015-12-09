@@ -52,6 +52,7 @@ var Ginger = function() {
       path: 'model/gingerheadphones.json',
       texture: null,
       normalmap: null,
+      color: new THREE.Color('rgb(180, 180, 180)'),
       morphTargets: false,
       mesh: null
     },
@@ -429,17 +430,21 @@ var Ginger = function() {
     // Loads the meshes asynchronously.
     var load = function(path, mesh) {
       jsonLoader.load(path, function(geometry) {
-        var texture, normalmap;
+        var texture, normalmap, color;
 
         if (meshes[mesh].texture != null) {
           texture = meshes[mesh].texture.texture;
         }
         if (meshes[mesh].normalmap != null) {
-          normalmap = meshes[mesh].normalmap.texture
+          normalmap = meshes[mesh].normalmap.texture;
+        }
+        if (meshes[mesh].color != null) {
+          color = meshes[mesh].color;
         }
 
         var material = new THREE.MeshLambertMaterial({
           map: texture,
+          color: color,
           normalmap: normalmap,
           vertexColors: THREE.FaceColors,
           shading: THREE.SmoothShading,
@@ -733,8 +738,11 @@ var Ginger = function() {
       document.getElementById('screenshot').onclick = onscreenshotpress;
       document.querySelector('#screenshot-modal .full-shadow').onclick = onscreenshotdismiss;
 
+      // Parse the url substring for GET parameters and put them
+      // in a dictionary.
       var sharedParams = parseShareLink();
 
+      // Set the initial values of ginger to the values in the GET params.
       for (var control in controls) {
         var selectedControl = controls[control];
 
