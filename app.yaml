@@ -1,0 +1,85 @@
+application: zuperkulblog
+version: 0-0-19
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+
+handlers:
+- url: /favicon.ico
+  static_files: dist/static/favicon.ico
+  upload: dist/static/favicon.ico
+  secure: always
+
+- url: /manifest.json
+  static_files: dist/static/manifest.json
+  upload: dist/static/manifest.json
+  secure: always
+
+# Platinum Service Worker
+- url: /sw-import.js
+  static_files: dist/static/sw-import.js
+  upload: dist/static/sw-import.js
+  secure: always
+
+- url: /elements/bootstrap
+  static_dir: dist/static/bower_components/platinum-sw/bootstrap
+  secure: always
+
+- url: /sw-toolbox
+  static_dir: dist/static/bower_components/sw-toolbox
+  secure: always
+
+- url: /cache-config.json
+  static_files: dist/static/cache-config.json
+  upload: dist/static/cache-config.json
+  secure: always
+
+# Platinum Push Messaging
+- url: /elements/service-worker.js
+  static_files: dist/static/service-worker.js
+  upload: dist/static/service-worker.js
+  secure: always
+
+- url: /scripts
+  static_dir: dist/static/scripts
+  secure: always
+
+- url: /bower_components
+  static_dir: dist/static/bower_components
+  secure: always
+
+- url: /model
+  static_dir: dist/static/model
+  secure: always
+
+- url: /elements
+  static_dir: dist/static/elements
+  secure: always
+
+- url: /images
+  static_dir: dist/static/images
+  secure: always
+
+- url: .*
+  script: main.app
+  secure: always
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^(.*/)?bower\.json
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?.*\.bak$
+- ^(.*/)?node_modules/.*
+- ^(.*/)?tests/.*
+- ^.*.md|markdown

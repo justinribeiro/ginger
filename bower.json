@@ -15,6 +15,7 @@
     "tests"
   ],
   "dependencies": {
+    "platinum-elements": "PolymerElements/platinum-elements#~1.2.0",
     "three.js": "~0.71.0"
   }
 }

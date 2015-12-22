@@ -1,5 +1,8 @@
-node_modules/
-src/components/
-
-build/
-tmp/
+app/static/bower_components
+bower_components
+node_modules
+http2push.pyc
+main.pyc
+.DS_Store
+dist
+tmp
