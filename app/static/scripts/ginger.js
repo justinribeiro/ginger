@@ -382,7 +382,7 @@ var Ginger = function() {
         // Once all textures are loaded the callback is called.
         // This allows chaining mesh loading which requires textures.
         if (progress >= goal) {
-          if (callback != null) {
+          if (callback !== null) {
             callback();
           }
 
