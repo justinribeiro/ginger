@@ -40,7 +40,7 @@ gulp.task('copy', ['clean'], function() {
     .pipe(gulp.dest('dist/static'));
 
   var bower = gulp.src([
-    'app/static/bower_components/{webcomponentsjs,platinum-sw,sw-toolbox,promise-polyfill,three.js}/**/*'
+    'app/static/bower_components/{webcomponentsjs,platinum-sw,sw-toolbox,promise-polyfill,three.js,clipboard}/**/*'
   ])
   .pipe(gulp.dest('dist/static/bower_components'));
 
@@ -96,6 +96,7 @@ gulp.task('cache-config', ['copy'], function(callback) {
         '/',
         'bower_components/webcomponentsjs/webcomponents-lite.min.js',
         'bower_components/three.js/three.min.js',
+        'bower_components/clipboard/dist/clipboard.min.js',
         'elements/elements.html'
       );
       config.precache = files;
