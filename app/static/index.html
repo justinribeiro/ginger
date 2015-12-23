@@ -41,14 +41,31 @@
       font-family: Arial;
     }
 
-    #range {
-      width: 90%;
-      height: 75px;
-      margin: 0 20px;
+    #sv-lab-header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 65px;
+      background-color: #fff;
+    }
+    #sv-lab-header div {
+      min-width: 300px;
+      text-align: center;
     }
 
-    #share {
+    #sv-logo {
+      width: 100px;
+      height: 62px;
+      background: url(images/sv-green.svg) no-repeat center center;
+      background-size: contain;
+      display: block;
+      margin: auto;
+    }
 
+    #hide-header {
+      color: #3385FF;
+      text-decoration: none;
+      border-bottom: 1px solid #3385FF;
     }
 
     #screenshot-image {
@@ -101,7 +118,6 @@
       position: absolute;
       z-index: 100;
       top: 25%;
-      bottom: 25%;
       left: 25%;
       right: 25%;
       padding: 15px;
@@ -114,49 +130,34 @@
       margin-top: 0;
     }
 
-    .modal-sm {
-      position: absolute;
-      z-index: 100;
-      width: 200px;
-      height: 100px;
-      padding: 15px;
-      top: calc(50% - 65px);
-      left: calc(50% - 115px);
-      border-radius: 5px;
-      background: rgb(100, 100, 100);
-      color: #fafafa;
-    }
-
-    .modal-sm h1, .modal-sm h2, .modal-sm h3, .modal-sm h4 {
-      margin-top: 0;
-    }
-
-    .modal-sm a {
-      text-decoration: none;
-      text-align: center;
-      color: lightblue;
-    }
-
     .clearfix {
       clear: both;
     }
 
-    button {
+    button, .button {
       padding: 10px;
       margin: 0 16px;
       outline: none;
-      border: 1px solid rgb(70, 70, 70);
-      background: #699317;
+      border: 1px solid rgb(90, 90, 90);
+      background: #6E9429;
       color: #fafafa;
       min-width: 150px;
+      text-decoration: none;
+      border-radius: 3px;
     }
 
-    button:active {
+    button:active, .button:active {
       background: rgb(90, 90, 90);
     }
 
-    button:active:hover {
+    button:active:hover, .button:active:hover {
       background: rgb(80, 80, 80);
+    }
+
+    #range {
+      width: 90%;
+      height: 75px;
+      margin: 0 20px;
     }
 
     .range {
@@ -255,8 +256,21 @@
       flex: 1 1 0;
     }
 
+    textarea {
+      width: 100%;
+      height: 50px;
+    }
+
+    .modal button {
+      margin: 0;
+      vertical-align: text-top;
+    }
+
+    #screenshot-modal .modal {
+      bottom: 10%;
+    }
+
     @media (max-width: 580px) {
-      /* make buttons smaller to fit on small screens */
       .select {
         margin: 10px;
       }
@@ -265,12 +279,36 @@
         margin: 0 2px;
         min-width: initial;
       }
+      .button {
+        margin: auto;
+      }
+      #sv-lab-header div {
+        min-width: 100px;
+        flex: 1 1 0;
+      }
+      .modal {
+        left: 5%;
+        right: 5%;
+      }
+      #screenshot-image {
+        width: auto;
+        margin: auto;
+        display: block;
+      }
     }
 
   </style>
 </head>
 
 <body>
+  <div id="sv-lab-header" class="flex-container">
+    <div>
+      <a href="https://www.stickmanventures.com/" id="sv-logo" title="Stickman Ventures"></a>
+    </div>
+    <div><a id="hide-header">Hide This Header ❌</a></div>
+    <div><a href="https://www.stickmanventures.com/" class="button" title="Learn how we built this">Learn More &raquo;</a></div>
+  </div>
+
   <div id="renderer"></div>
 
   <div class="panel">
@@ -288,7 +326,7 @@
           <option value="symmetry">Symmetry</option>
           <option value="lipcurl">Lip Curl</option>
           <option value="lipsync">Lip Sync</option>
-          <option value="sex">Manliness</option>
+          <option value="sex">Face Structure</option>
           <option value="width">Jaw Width</option>
           <option value="tongue">Tongue</option>
         </select>        
@@ -303,19 +341,30 @@
 
   <div id="screenshot-modal" class="hidden">
     <div class="full-shadow"></div>
-
     <div class="modal">
-      <h1>Screenshot</h1>
+      <h1>Screenshot <button id="copytoclipboard-image" type="button">Download</button></h1>
       <img id="screenshot-image">
+      <input type="text" id="screenshot-data">
     </div>
   </div>
 
   <div id="share-modal" class="hidden">
     <div class="full-shadow"></div>
+    <div class="modal">
+      <h1>Share Link <button id="copytoclipboard-share" data-clipboard-target="#share-link" type="button">Copy to Clipboard</button></h1>
+      <textarea id="share-link"></textarea>
+    </div>
+  </div>
 
-    <div class="modal-sm">
-      <h1>Share Link</h1>
-      <a id="share-link">Copy to share</a>
+  <div id="version-modal" class="hidden">
+    <div class="full-shadow"></div>
+    <div class="modal">
+      <h1>New Version: Ginger v2.0.1</h1>
+      <p>➡ Now a Progressive Web App - Use "Add to Homescreen"</p>
+      <p>➡ Share a pose added</p>
+      <p>➡ Ability to screenshot added</p>
+      <p>➡ Service Worker for offline support via platinum-sw-*</p>
+      <p>➡ Three.js to version r71</p>
     </div>
   </div>
 
@@ -330,8 +379,6 @@
                        cache-config-file="/cache-config.json">
     </platinum-sw-cache>
   </platinum-sw-register>
-
-  <script type="text/javascript" src="/bower_components/three.js/three.min.js"></script>
 
   <!-- build:js /scripts/app.js async -->
   <script src="/scripts/easing.js"></script>
