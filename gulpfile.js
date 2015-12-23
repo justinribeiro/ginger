@@ -88,7 +88,7 @@ gulp.task('cache-config', ['copy'], function(callback) {
     disabled: false
   };
 
-  glob('{model,scripts}/**/*.*', {cwd: dir}, function(error, files) {
+  glob('{model,scripts,images}/**/*.*', {cwd: dir}, function(error, files) {
     if (error) {
       callback(error);
     } else {
