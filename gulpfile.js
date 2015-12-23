@@ -22,6 +22,7 @@ var rename = require('gulp-rename');
 var path = require('path');
 var fs = require('fs');
 var exec = require('child_process').exec;
+var concat = require('gulp-concat');
 var packageJson = require('./package.json');
 
 gulp.task('clean', function() {
@@ -50,6 +51,13 @@ gulp.task('html', ['clean'], function() {
   return gulp.src('app/static/index.html')
     .pipe(useref())
     .pipe(gulpif('*.js', uglify()))
+    .pipe(gulp.dest('dist/static'));
+});
+
+gulp.task('concat', ['clean'], function() {
+  return gulp.src('app/static/index.html')
+    .pipe(useref())
+    .pipe(gulpif('*.js', concat('scripts/app.js')))
     .pipe(gulp.dest('dist/static'));
 });
 
@@ -102,13 +110,15 @@ gulp.task('cache-config', ['copy'], function(callback) {
   });
 });
 
-gulp.task('watch', ['default'], function() {
+gulp.task('watch', ['dev'], function() {
   gulp.watch([
       'app/static/index.html',
       'app/static/favicon.ico',
       'app/static/{scripts,elements,styles}/**/*',
       'content/content/blog/**/*'
-    ], ['default']);
+    ], ['dev']);
 });
+
+gulp.task('dev', ['clean', 'concat', 'vulcanize']);
 
 gulp.task('default', ['clean', 'html', 'vulcanize', 'cache-config']);

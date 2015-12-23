@@ -3,6 +3,8 @@ var Ginger = function() {
 
   var aspect;
 
+  var mousetracking = false;
+
   var queue = [];
 
   // Object3Ds with all meshes as children.
@@ -320,19 +322,13 @@ var Ginger = function() {
   function morph() {
     // Another separate loop for morph behaviors. This is so the scale or morph
     // of certain meshes can be adjusted to account for others.
-    for (var morph in morphs) {
-      var morphTarget = morphs[morph];
+    for (var item in morphs) {
+      var morphTarget = morphs[item];
 
       // Not all morphs need behaviors so do not assume.
-      if (morphTarget['behavior'] != undefined) {
+      if (morphTarget.behavior !== undefined) {
         morphTarget.behavior(morphTarget.value);
       }
-    }
-
-    // Apply morph values to the correct targets.
-    for (var morph in morphs) {
-      var morphTarget = morphs[morph];
-      var target = 0;
 
       // Find which morph needs to have the value applied to.
       // This is determined using thresholds.
@@ -344,19 +340,17 @@ var Ginger = function() {
         }
       }
 
-      // The morph that should be updated based on the threshholds.
-      var morphid = morphTarget.targets[target];
-
       // Apply the morph to the currently determined morph in the range.
-      for (var i = 0; i < morphTarget.targets.length; i++) {
-        var index = morphTarget.targets[i];
+      for (var j = 0; j < morphTarget.targets.length; j++) {
+        var index = morphTarget.targets[j];
 
-        if (morphTarget.targets[i] != morphid) {
+        if (morphTarget.targets[j] !== morphTarget.targets[target]) {
           morphTarget.mesh.mesh.morphTargetInfluences[index] = 0;
         } else {
           morphTarget.mesh.mesh.morphTargetInfluences[index] = Math.abs(morphTarget.value);
         }
       }
+
     }
   }
 
@@ -409,7 +403,7 @@ var Ginger = function() {
     // Adds all meshes loaded into the scene.
     var addMeshes = function() {
       for (var mesh in meshes) {
-        if (meshes[mesh].position != null) {
+        if (meshes[mesh].position !== undefined) {
           // Apply the transformations next frame so the initial addition does
           // not overwrite anything we write to the matrix.
           queueNextFrame(function(args) {
@@ -419,7 +413,7 @@ var Ginger = function() {
           });
         }
 
-        if (meshes[mesh].parent != null) {
+        if (meshes[mesh].parent !== undefined) {
           meshes[mesh].parent.add(meshes[mesh].mesh);
         } else {
           ginger.add(meshes[mesh].mesh);
@@ -432,13 +426,13 @@ var Ginger = function() {
       jsonLoader.load(path, function(geometry) {
         var texture, normalmap, color;
 
-        if (meshes[mesh].texture != null) {
+        if (meshes[mesh].texture !== null) {
           texture = meshes[mesh].texture.texture;
         }
-        if (meshes[mesh].normalmap != null) {
+        if (meshes[mesh].normalmap !== null) {
           normalmap = meshes[mesh].normalmap.texture;
         }
-        if (meshes[mesh].color != null) {
+        if (meshes[mesh].color !== null) {
           color = meshes[mesh].color;
         }
 
@@ -459,7 +453,7 @@ var Ginger = function() {
         if (progress >= goal) {
           addMeshes();
 
-          if (callback != null) {
+          if (callback !== undefined) {
             callback();
           }
 
@@ -488,31 +482,34 @@ var Ginger = function() {
   }
 
   function onmousemove(event) {
-    var mouse = new THREE.Vector3(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        - (event.clientY / window.innerHeight) * 2 + 1,
-        0.5
-    );
 
-    mouse.unproject(camera);
+    if (mousetracking) {
+      var mouse = new THREE.Vector3(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          - (event.clientY / window.innerHeight) * 2 + 1,
+          0.5
+      );
 
-    // When getting the direction, flip the x and y axis or the eyes will
-    // look the wrong direction.
-    var direction = mouse.sub(camera.position).normalize();
-    direction.x *= -1;
-    direction.y *= -1;
+      mouse.unproject(camera);
 
-    var distance = camera.position.z / direction.z;
-    var position = camera.position.clone().add(direction.multiplyScalar(distance));
+      // When getting the direction, flip the x and y axis or the eyes will
+      // look the wrong direction.
+      var direction = mouse.sub(camera.position).normalize();
+      direction.x *= -1;
+      direction.y *= -1;
 
-    leftEye.lookAt(position);
-    rightEye.lookAt(position);
+      var distance = camera.position.z / direction.z;
+      var position = camera.position.clone().add(direction.multiplyScalar(distance));
 
-    // Move the head less than the eyes.
-    ginger.lookAt(position);
-    ginger.rotation.x /= 5;
-    ginger.rotation.y /= 5;
-    ginger.rotation.z = 0;
+      leftEye.lookAt(position);
+      rightEye.lookAt(position);
+
+      // Move the head less than the eyes.
+      ginger.lookAt(position);
+      ginger.rotation.x /= 5;
+      ginger.rotation.y /= 5;
+      ginger.rotation.z = 0;
+    }
   }
 
   function onrangeslide(event) {
@@ -524,10 +521,7 @@ var Ginger = function() {
   function updateMorph(progress, morph) {
     var selectControl;
     var found = false;
-
-    if (morph == null) {
-      morph = selected;
-    }
+    morph = typeof morph !== 'undefined' ? morph : selected;
 
     for (var control in controls) {
       if (controls[control].control == morph) {
@@ -596,6 +590,13 @@ var Ginger = function() {
     }
   }
 
+  function onmousetrack(event) {
+    mousetracking = !mousetracking;
+
+    var offon = mousetracking === true ? 'ON' : 'OFF';
+    document.getElementById('mousetrack').textContent = 'Follow ' + offon;
+  }
+
   function onscreenshotdismiss(event) {
     var modal = document.getElementById('screenshot-modal');
     modal.classList.add('hidden');
@@ -641,7 +642,7 @@ var Ginger = function() {
     for (var control in controls) {
       var selectControl = controls[control];
 
-      if (index == 0) {
+      if (index === 0) {
         url += '?';
       } else {
         url += '&';
@@ -734,6 +735,7 @@ var Ginger = function() {
       document.getElementById('range').oninput = onrangeslide;
       document.getElementById('morph').onchange = onselect;
       document.getElementById('share').onclick = onsharepress;
+      document.getElementById('mousetrack').onclick = onmousetrack;
       document.querySelector('#share-modal .full-shadow').onclick = onsharedismiss;
       document.getElementById('screenshot').onclick = onscreenshotpress;
       document.querySelector('#screenshot-modal .full-shadow').onclick = onscreenshotdismiss;
@@ -746,7 +748,7 @@ var Ginger = function() {
       for (var control in controls) {
         var selectedControl = controls[control];
 
-        if (sharedParams[selectedControl.control] != undefined) {
+        if (sharedParams[selectedControl.control] !== undefined) {
           updateMorph(sharedParams[selectedControl.control], selectedControl.control);
         }
       }
@@ -774,6 +776,7 @@ var Ginger = function() {
 
       // Start the render loop.
       animate();
+
     }
   };
 };

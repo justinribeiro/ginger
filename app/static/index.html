@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no">
   <title>Stickman Ventures - Ginger</title>
 
   <!-- Chrome for Android theme color -->
@@ -42,20 +42,13 @@
     }
 
     #range {
-      float: left;
-      width: 35%;
+      width: 90%;
       height: 75px;
-      padding-left: 20px;
-      margin: 0;
-    }
-
-    #morph {
-      float: right;
+      margin: 0 20px;
     }
 
     #share {
-      margin-left: 20px;
-      margin-right: 10px;
+
     }
 
     #screenshot-image {
@@ -148,19 +141,21 @@
       clear: both;
     }
 
-    .button {
+    button {
       padding: 10px;
+      margin: 0 16px;
       outline: none;
       border: 1px solid rgb(70, 70, 70);
-      background: rgb(110, 110, 110);
+      background: #699317;
       color: #fafafa;
+      min-width: 150px;
     }
 
-    .button:active {
+    button:active {
       background: rgb(90, 90, 90);
     }
 
-    .button:active:hover {
+    button:active:hover {
       background: rgb(80, 80, 80);
     }
 
@@ -232,9 +227,9 @@
     .select {
       -webkit-appearance: none;
       -moz-appearance: none;
-      width: 35%;
+      width: 90%;
       height: 35px;
-      margin: 20px 20px 20px 0;
+      margin: 20px;
       outline: none;
       background: rgb(70, 70, 70);
       color: #fafafa;
@@ -244,6 +239,34 @@
     .select::-moz-focus-outer {
       border: 0;
     }
+
+    .flex-container {
+       display: -webkit-flex;
+       display: flex;
+       -webkit-flex-direction: row /* works with row or column */
+       flex-direction: row;
+       -webkit-align-items: center;
+       align-items: center;
+       -webkit-justify-content: center;
+       justify-content: center;
+    }
+
+    .flex-container section {
+      flex: 1 1 0;
+    }
+
+    @media (max-width: 580px) {
+      /* make buttons smaller to fit on small screens */
+      .select {
+        margin: 10px;
+      }
+      button {
+        padding: 10px;
+        margin: 0 2px;
+        min-width: initial;
+      }
+    }
+
   </style>
 </head>
 
@@ -251,26 +274,31 @@
   <div id="renderer"></div>
 
   <div class="panel">
-    <!-- Controls for changing the morphs. -->
-    <input id="range" class="range" type="range" min="0" max="1" step="0.01" value="0">
-    <select id="morph" class="select">
-      <option value="eyes">Eyes</option>
-      <option value="expression">Expression</option>
-      <option value="jawrange">Jaw Height</option>
-      <option value="jawtwist">Jaw Twist</option>
-      <option value="symmetry">Symmetry</option>
-      <option value="lipcurl">Lip Curl</option>
-      <option value="lipsync">Lip Sync</option>
-      <option value="sex">Manliness</option>
-      <option value="width">Jaw Width</option>
-      <option value="tongue">Tongue</option>
-    </select>
-
-    <div class="clearfix"></div>
-
-    <!-- Sharing buttons. -->
-    <input id="share" type="button" class="button" value="Share this Face">
-    <input id="screenshot" type="button" class="button" value="Take a Screenshot">
+    <div class="flex-container">
+      <section>
+        <!-- Controls for changing the morphs. -->
+        <input id="range" class="range" type="range" min="0" max="1" step="0.01" value="0">
+      </section>
+      <section>
+        <select id="morph" class="select">
+          <option value="eyes">Eyes</option>
+          <option value="expression">Expression</option>
+          <option value="jawrange">Jaw Height</option>
+          <option value="jawtwist">Jaw Twist</option>
+          <option value="symmetry">Symmetry</option>
+          <option value="lipcurl">Lip Curl</option>
+          <option value="lipsync">Lip Sync</option>
+          <option value="sex">Manliness</option>
+          <option value="width">Jaw Width</option>
+          <option value="tongue">Tongue</option>
+        </select>        
+      </section>
+    </div>
+    <div class="flex-container">
+      <div><button id="share" type="button">Share Pose</button></div>
+      <div><button id="screenshot" type="button">Take Screenshot</button></div>
+      <div><button id="mousetrack" type="button">Follow OFF</button></div>
+    </div>    
   </div>
 
   <div id="screenshot-modal" class="hidden">
