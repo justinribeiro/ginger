@@ -334,7 +334,6 @@
     <div class="modal">
       <h1>Screenshot <button id="copytoclipboard-image" type="button">Download</button></h1>
       <img id="screenshot-image">
-      <input type="text" id="screenshot-data">
     </div>
   </div>
 
@@ -365,6 +364,7 @@
                       skip-waiting
                       href="/sw-import.js"
                       scope="/">
+    <platinum-sw-offline-analytics></platinum-sw-offline-analytics>
     <platinum-sw-cache default-cache-strategy="fastest"
                        cache-config-file="/cache-config.json">
     </platinum-sw-cache>
