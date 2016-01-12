@@ -115,10 +115,10 @@ var Ginger = function() {
         var sex = morphs.sex.value;
         var recede = EASING.linear(sex, 0, -0.125, 1);
 
-        if (this.leftEyeOrigin == null) {
+        if (this.leftEyeOrigin === null) {
           this.leftEyeOrigin = leftEye.position.clone();
         }
-        if (this.rightEyeOrigin == null) {
+        if (this.rightEyeOrigin === null) {
           this.rightEyeOrigin = rightEye.position.clone();
         }
 
@@ -317,7 +317,7 @@ var Ginger = function() {
       max: 1,
       morph: morphs.tongue
     }
-  }
+  };
 
   function morph() {
     // Another separate loop for morph behaviors. This is so the scale or morph
@@ -482,11 +482,22 @@ var Ginger = function() {
   }
 
   function onmousemove(event) {
+    var e = {};
+    e.touches = [{clientX: event.clientX, clientY: event.clientY}];
+    e.type = "mousemove";
+    ontouchmove(e);
+  }
+
+  function ontouchmove(event) {
+    
+    if(event.type == "touchmove") {
+      event.preventDefault();
+    }
 
     if (mousetracking) {
       var mouse = new THREE.Vector3(
-          (event.clientX / window.innerWidth) * 2 - 1,
-          - (event.clientY / window.innerHeight) * 2 + 1,
+          (event.touches[0].clientX / window.innerWidth) * 2 - 1,
+          - (event.touches[0].clientY / window.innerHeight) * 2 + 1,
           0.5
       );
 
@@ -593,8 +604,11 @@ var Ginger = function() {
   function onmousetrack(event) {
     mousetracking = !mousetracking;
 
+    var elButton = document.getElementById('mousetrack');
+
     var offon = mousetracking === true ? 'ON' : 'OFF';
-    document.getElementById('mousetrack').textContent = 'Follow ' + offon;
+    elButton.textContent = 'Follow ' + offon;
+    elButton.className = 'buttoncolor-' + offon;
   }
 
   function onscreenshotdismiss(event) {
@@ -729,8 +743,10 @@ var Ginger = function() {
       // Allow viewport resizing whenever the window resizes.
       window.onresize = onresize;
 
-      // Setup event so ginger's eyes track the mouse.
-      document.getElementById('renderer').onmousemove = onmousemove;
+      // Setup event so ginger's eyes track the mouse
+      var elRenderer = document.getElementById('renderer');
+      elRenderer.addEventListener('mousemove', onmousemove);
+      elRenderer.addEventListener('touchmove', ontouchmove);
 
       // Setup events for the slider and selector.
       document.getElementById('range').onchange = onrangeslide;
@@ -780,111 +796,3 @@ var Ginger = function() {
     }
   };
 };
-
-var webComponentsSupported = ('registerElement' in document
-    && 'import' in document.createElement('link')
-    && 'content' in document.createElement('template'));
-
-if (!webComponentsSupported) {
-  var script = document.createElement('script');
-  script.async = true;
-  script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
-  document.head.appendChild(script);
-
-  window.addEventListener('WebComponentsReady', function(e) {
-    console.log('FALLBACK: WebComponentsReady() fired and components ready.');
-    appInit();
-  });
-
-} else {
-  window.Polymer = window.Polymer || {dom: 'shadow'};
-
-  var link = document.querySelector('#bundle');
-  var onImportLoaded = function() {
-    appInit();
-  };
-
-  // 5. Go if the async Import loaded quickly. Otherwise wait for it.
-  // crbug.com/504944 - readyState never goes to complete until Chrome 46.
-  // crbug.com/505279 - Resource Timing API is not available until Chrome 46.
-  if (link.import && link.import.readyState === 'complete') {
-    appInit()
-  } else {
-    link.addEventListener('load', appInit);
-  }
-}
-
-// Async loading w/bindings for Ginger
-var script = document.createElement('script');
-script.async = true;
-script.src = '/bower_components/three.js/three.min.js';
-script.onload = initGinger;
-document.head.appendChild(script);
-
-function initGinger() {
-  var ginger = new Ginger();
-  ginger.init();
-}
-
-// Async loading w/bindings for copy to clipboard
-var script = document.createElement('script');
-script.async = true;
-script.src = '/bower_components/clipboard/dist/clipboard.min.js';
-script.onload = initClipboard;
-document.head.appendChild(script);
-
-function initClipboard() {
-  var clipboard = new Clipboard('#copytoclipboard-share');
-  clipboard.on('success', function(e) {
-    document.getElementById('copytoclipboard-share').textContent = "Copied!"
-    setTimeout(function() {
-      document.getElementById('copytoclipboard-share').textContent = "Copy to Clipboard"
-    }, 2000);
-  });
-}
-
-// GA platinum-sw-offline-analytics handles offline
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-20667086-9', 'auto');
-ga('send', 'pageview');
-
-function appInit() {
-  var version = '1';
-
-  document.getElementById('hide-header').addEventListener('click', function (e) {
-    document.getElementById('sv-lab-header').remove();
-  });
-
-  document.getElementById('copytoclipboard-image').addEventListener('click', function(e) {
-    var image = document.getElementById('screenshot-image').src;
-    var timestamp = Math.floor(Date.now() / 1000);
-    var download  = document.createElement('a');
-    download.href = image;
-    download.download = 'sv-ginger-' + timestamp + '.jpg';
-    download.click();
-  });
-
-  var overlay = document.querySelectorAll('.full-shadow');
-  for (var i = 0; i < overlay.length; i++) {
-    overlay[i].addEventListener('click', function(e) {
-      var parent = e.target.parentNode;
-      parent.classList.add('hidden');
-    });
-  }
-
-  // Ugh...localStorage
-  var getVersion = localStorage.getItem('version');
-  if (getVersion === undefined || getVersion === null) {
-    document.getElementById('version-modal').classList.remove('hidden');
-    localStorage.setItem('version', version);
-  } else {
-    if (getVersion !== version) {
-      document.getElementById('version-modal').classList.remove('hidden');
-      localStorage.setItem('version', version);
-    }
-  }
-}
