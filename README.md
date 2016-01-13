@@ -12,7 +12,7 @@ Things you're going to need:
 ## Setup and run
 ```
 ➜ git clone git@github.com:StickmanVentures/ginger.git
-➜ cd sv-progressive-web
+➜ cd ginger
 ➜ npm install && bower install
 ➜ gulp
 ➜ dev_appserver.py .
