@@ -53,6 +53,7 @@ document.head.appendChild(script);
 function initClipboard() {
   var clipboard = new Clipboard('#copytoclipboard-share');
   clipboard.on('success', function(e) {
+    ga('send', 'pageview', {'page': '/copied', 'title': 'Share Link Copied'});
     document.getElementById('copytoclipboard-share').textContent = "Copied!"
     setTimeout(function() {
       document.getElementById('copytoclipboard-share').textContent = "Copy to Clipboard"
@@ -73,16 +74,22 @@ function appInit() {
   var version = '1';
 
   document.getElementById('hide-header').addEventListener('click', function (e) {
+    ga('send', 'pageview', {'page': '/header-hidden', 'title': 'Header hidden'});
     document.getElementById('sv-lab-header').remove();
   });
 
   document.getElementById('copytoclipboard-image').addEventListener('click', function(e) {
+    ga('send', 'pageview', {'page': '/downloaded', 'title': 'Downloaded Screenshot'});
     var image = document.getElementById('screenshot-image').src;
     var timestamp = Math.floor(Date.now() / 1000);
     var download  = document.createElement('a');
     download.href = image;
     download.download = 'sv-ginger-' + timestamp + '.jpg';
     download.click();
+  });
+
+  document.getElementById('screenshot').addEventListener('click', function (e) {
+    ga('send', 'pageview', {'page': '/screenshot', 'title': 'Screenshot triggered'});
   });
 
   var overlay = document.querySelectorAll('.full-shadow');
