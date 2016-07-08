@@ -53,9 +53,9 @@
     }
 
     #hide-header {
-      color: #3385FF;
+      color: #2732FF;
       text-decoration: none;
-      border-bottom: 1px solid #3385FF;
+      border-bottom: 1px solid #2732FF;
       font-size: 14px;
     }
 
@@ -91,9 +91,15 @@
     .panel {
       position: absolute;
       width: 100%;
-      height: 125px;
+      height: 145px;
       bottom: 0;
       background: rgba(90, 90, 90, 1);
+    }
+
+    label {
+      padding: 10px 0 0 1.2em;
+      display: block;
+      color: #fff;
     }
 
     .full-shadow {
@@ -130,19 +136,19 @@
       margin: 0 16px;
       outline: none;
       border: 1px solid rgb(90, 90, 90);
-      background: #6E9429;
-      color: #fafafa;
+      background: #9ed639;
+      color: #000;
       min-width: 150px;
       text-decoration: none;
       border-radius: 3px;
     }
 
     .buttoncolor-ON {
-      background: #6E9429;
+      background: #9ed639;
     }
 
     .buttoncolor-OFF {
-      background: #AA0000;
+      background: #FF6C70;
     }
 
     button:active, .button:active {
@@ -155,7 +161,7 @@
 
     #range {
       width: 90%;
-      height: 75px;
+      height: 55px;
       margin: 0 20px;
     }
 
@@ -229,7 +235,7 @@
       -moz-appearance: none;
       width: 90%;
       height: 35px;
-      margin: 20px;
+      margin: 10px 0 20px 20px;
       outline: none;
       background: rgb(70, 70, 70);
       color: #fafafa;
@@ -294,6 +300,10 @@
         margin: auto;
         display: block;
       }
+
+      label {
+        text-align: center;
+      }
     }
 
   </style>
@@ -314,9 +324,11 @@
     <div class="flex-container">
       <section>
         <!-- Controls for changing the morphs. -->
+        <label for="range">Range of Motion</label>
         <input id="range" class="range" type="range" min="0" max="1" step="0.01" value="0">
       </section>
       <section>
+        <label for="morph">Morph Target</label>
         <select id="morph" class="select">
           <option value="eyes">Eyes</option>
           <option value="expression">Expression</option>
@@ -369,10 +381,8 @@
   <div id="counter" class="hidden"></div>
 
   <platinum-sw-register auto-register
-                      clients-claim
-                      skip-waiting
-                      href="/sw-import.js"
-                      scope="/">
+                        clients-claim
+                        skip-waiting>
     <platinum-sw-offline-analytics></platinum-sw-offline-analytics>
     <platinum-sw-cache default-cache-strategy="fastest"
                        cache-config-file="/cache-config.json">

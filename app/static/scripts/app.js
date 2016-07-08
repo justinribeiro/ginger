@@ -25,7 +25,7 @@ if (!webComponentsSupported) {
   // crbug.com/504944 - readyState never goes to complete until Chrome 46.
   // crbug.com/505279 - Resource Timing API is not available until Chrome 46.
   if (link.import && link.import.readyState === 'complete') {
-    appInit()
+    appInit();
   } else {
     link.addEventListener('load', appInit);
   }
@@ -54,9 +54,9 @@ function initClipboard() {
   var clipboard = new Clipboard('#copytoclipboard-share');
   clipboard.on('success', function(e) {
     ga('send', 'pageview', {'page': '/copied', 'title': 'Share Link Copied'});
-    document.getElementById('copytoclipboard-share').textContent = "Copied!"
+    document.getElementById('copytoclipboard-share').textContent = "Copied!";
     setTimeout(function() {
-      document.getElementById('copytoclipboard-share').textContent = "Copy to Clipboard"
+      document.getElementById('copytoclipboard-share').textContent = "Copy to Clipboard";
     }, 2000);
   });
 }
@@ -70,7 +70,8 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', 'UA-20667086-9', 'auto');
 ga('send', 'pageview');
 
-function appInit() {
+function appInit() {  
+
   var version = '1';
 
   document.getElementById('hide-header').addEventListener('click', function (e) {
