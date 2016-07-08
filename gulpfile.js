@@ -23,6 +23,8 @@ var path = require('path');
 var fs = require('fs');
 var exec = require('child_process').exec;
 var concat = require('gulp-concat');
+var minifyHTML = require('gulp-minify-html');
+var minifyInline = require('gulp-minify-inline');
 var packageJson = require('./package.json');
 
 gulp.task('clean', function() {
@@ -58,6 +60,7 @@ gulp.task('concat', ['clean'], function() {
   return gulp.src('app/static/index.html')
     .pipe(useref())
     .pipe(gulpif('*.js', concat('scripts/app.js')))
+    .pipe(gulp.dest('tmp/static'))
     .pipe(gulp.dest('dist/static'));
 });
 
@@ -72,6 +75,14 @@ gulp.task('vulcanize', ['copy'], function() {
       //   onlySplit: false
       // }))
       .pipe(gulp.dest('dist/static/elements'));
+});
+
+gulp.task('html:compress', function() {
+  return gulp.src('tmp/static/index.html')
+    .pipe(useref())
+    .pipe(minifyInline({js: false}))
+    .pipe(minifyHTML())
+    .pipe(gulp.dest('dist/static'));
 });
 
 // Generate config data for the <sw-precache-cache> element.
@@ -122,4 +133,4 @@ gulp.task('watch', ['dev'], function() {
 
 gulp.task('dev', ['clean', 'concat', 'vulcanize']);
 
-gulp.task('default', ['clean', 'html', 'vulcanize', 'cache-config']);
+gulp.task('default', ['clean', 'html', 'html:compress', 'vulcanize', 'cache-config']);
