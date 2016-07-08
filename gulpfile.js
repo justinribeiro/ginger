@@ -77,7 +77,7 @@ gulp.task('vulcanize', ['copy'], function() {
       .pipe(gulp.dest('dist/static/elements'));
 });
 
-gulp.task('html:compress', function() {
+gulp.task('html:compress', ['html', 'copy'], function() {
   return gulp.src('tmp/static/index.html')
     .pipe(useref())
     .pipe(minifyInline({js: false}))
@@ -113,7 +113,7 @@ gulp.task('cache-config', ['copy'], function(callback) {
       config.precache = files;
 
       var md5 = crypto.createHash('md5');
-      md5.update(JSON.stringify(config.precache));
+      md5.update(JSON.stringify(config.precache) + new Date().getTime().toString());
       config.precacheFingerprint = md5.digest('hex');
 
       var configPath = path.join(dir, 'cache-config.json');

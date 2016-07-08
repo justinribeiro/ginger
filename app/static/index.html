@@ -369,25 +369,24 @@
   <div id="version-modal" class="hidden">
     <div class="full-shadow"></div>
     <div class="modal">
-      <h1>New Version: Ginger v2.0.1</h1>
+      <h1>New Version: Ginger v2.1.0</h1>
       <p>➡ Now a Progressive Web App - Use "Add to Homescreen"</p>
-      <p>➡ Share a pose added</p>
-      <p>➡ Ability to screenshot added</p>
-      <p>➡ Service Worker for offline support via platinum-sw-*</p>
-      <p>➡ Three.js to version r71</p>
+      <p>➡ Accessibility updates for color contract</p>
+      <p>➡ 100/100 in <a href="https://github.com/GoogleChrome/lighthouse" style="color:#ffffff">Lighthouse</a> audit</p>
     </div>
   </div>
 
   <div id="counter" class="hidden"></div>
 
-  <platinum-sw-register auto-register
-                        clients-claim
-                        skip-waiting>
-    <platinum-sw-offline-analytics></platinum-sw-offline-analytics>
-    <platinum-sw-cache default-cache-strategy="fastest"
-                       cache-config-file="/cache-config.json">
-    </platinum-sw-cache>
-  </platinum-sw-register>
+    <platinum-sw-register auto-register
+                          clients-claim
+                          skip-waiting>
+      <platinum-sw-cache default-cache-strategy="fastest"
+                        cache-config-file="cache-config.json">
+      </platinum-sw-cache>
+      <platinum-sw-fetch handler="cacheFirst" path="/images/(.*)"></platinum-sw-fetch>
+      <platinum-sw-offline-analytics></platinum-sw-offline-analytics>
+    </platinum-sw-register>
 
   <!-- build:js /scripts/app.js async -->
   <script src="/scripts/easing.js"></script>
