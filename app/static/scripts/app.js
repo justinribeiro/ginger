@@ -72,7 +72,7 @@ ga('send', 'pageview');
 
 function appInit() {  
 
-  var version = '1';
+  var version = '2';
 
   document.getElementById('hide-header').addEventListener('click', function (e) {
     ga('send', 'pageview', {'page': '/header-hidden', 'title': 'Header hidden'});
